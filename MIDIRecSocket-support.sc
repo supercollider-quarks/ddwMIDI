@@ -406,7 +406,7 @@ MIDIBufManager {
 	}
 
 	init { arg cl, chan, ccnum;
-		midiChannel = chan.asChannelIndex;
+		midiChannel = chan !? { chan.asChannelIndex };
 		clock = cl ?? { TempoClock.default };
 			// make a midi controller if asked, otherwise 
 		chan.notNil.if({
