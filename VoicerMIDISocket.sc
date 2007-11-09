@@ -118,12 +118,10 @@ VoicerMIDISocket : AbstractMIDISocket {
 			?? { destination.mapGlobal(name, nil, value, spec) };
 
 			// if I'm pointing to a proxy, midi controller should point to a proxy also
-//		vcontrol = VoicerMIDIController.new(newMChan, cc, 
-//			destination.isKindOf(VoicerProxy).if({ gc.proxify }, { gc }));
+			// respondsTo(\proxy) is false for VoicerProxies
+		vcontrol = VoicerMIDIController.new(newMChan, cc, 
+			destination.respondsTo(\proxy).if({ gc }, { gc.proxify }));
 
-		vcontrol = VoicerMIDIController.new(newMChan, cc, gc.proxify);
-
-		
 		ccs = ccs.add(vcontrol);
 //		gc.displayNameSet;
 	}

@@ -13,7 +13,7 @@ VoicerMIDIController : AbstractMIDIControl {
 		{	destination.midiControl = this;
 			destination.displayNameSet;
 			spec = destination.tryPerform(\spec).asSpec;
-		}.try;
+		}.try; // { |error| error.reportError }; (for debugging)
 	}
 	
 		// this is part of the "free" process so I won't use defaultDest here
