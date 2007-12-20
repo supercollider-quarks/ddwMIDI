@@ -205,7 +205,7 @@ MIDIRecBuf {
 			onset = onset + newnote.dur;
 //[note.length, newnote.dur, note.dur, note.length * newnote.dur / note.dur].postln;
 		});
-		beatsPerBar.notNil.if({
+		(beatsPerBar.notNil and: { beatsPerBar > 0 }).if({
 //"".postln; [lastOnset, b.collect({ |n| n.dur }).sum - b.last.dur, beatsPerBar, beatsPerBar - ((lastOnset - b.last.dur) % beatsPerBar)].postln;
 				// fill out to end of bar if bar length specified
 			b.last.dur_(beatsPerBar - ((onset - b.last.dur) % beatsPerBar));
