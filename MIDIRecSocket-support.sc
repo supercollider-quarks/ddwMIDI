@@ -211,10 +211,6 @@ MIDIRecBuf {
 			b.last.dur_(beatsPerBar - ((onset - b.last.dur) % beatsPerBar));
 		});
 		^this.class.new(name, b, properties)
-
-// deprecated
-//			// factor = quantization granularity
-//		^TranslatorDef.[\quantDeltaPreserveArtic].value(this, factor, beatsPerBar);
 	}
 	
 		// attempt to quantize without requiring material to be exactly in tempo
@@ -430,7 +426,7 @@ MIDIBufManager {
 		bufs.includes(buf).not.if({
 				// is there already a buf with this name?
 			nameTemp = buf.name.asSymbol;
-			(index = bufs.detectIndex({ |b| b.name.asSymbol == nameTemp })).notNil.if({
+			(index = this.indexOf(nameTemp)).notNil.if({
 				overwrite.if({ bufs[index] = buf; },
 					{ MethodError("MIDIRecSocket-add: already have a buf with name "
 						++ nameTemp, this).throw });
@@ -462,6 +458,7 @@ MIDIBufManager {
 	}
 	
 	value_ { arg v, updateGUI = true;
+		v.isNumber.not.if({ v = this.indexOf(v) });
 		value = v.wrap(0, bufs.size);	// ensure value is in array range
 		(updateGUI and: { view.notNil }).if({ view.refresh(this); });
 	}
@@ -471,11 +468,17 @@ MIDIBufManager {
 	at { |index|
 		index.isInteger.if({ ^bufs[index] }, {
 				// index may be buf name also -- index -1 if not found, returns nil
-			^bufs[bufs.collect({ |buf| buf.name.asSymbol }).indexOf(index.asSymbol) ? -1]
+			^bufs[this.indexOf(name) ? -1]
 		});
 	}
 	
-	initRecord { |properties|
+	indexOf { |name|
+		name = name.asSymbol;
+		^bufs.detectIndex({ |b| b.name.asSymbol == name })
+	}
+	
+	initRecord { |properties, new = true|
+		(new ? true).if({ this.value_(bufs.size) });
 		recorder = MIDIRecSocket(midiChannel, clock, properties);
 		view.notNil.if({ view.refresh });
 	}
@@ -502,10 +505,7 @@ MIDIBufManager {
 			recorder = nil;	// must garbage to be ready for next record call
 			view.notNil.if({ view.refresh });
 		};
-//			// if there was no error, the protect-unwind func doesn't get called,
-//			// so I must repeat here -- NOT TRUE - unwind gets called anyway
-//		recorder = nil;	// must garbage to be ready for next record call
-//		view.notNil.if({ view.refresh });
+		^newBuf
 	}
 	
 	guiClass { ^MIDIRecGUI }
