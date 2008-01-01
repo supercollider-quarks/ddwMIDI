@@ -468,7 +468,7 @@ MIDIBufManager {
 	at { |index|
 		index.isInteger.if({ ^bufs[index] }, {
 				// index may be buf name also -- index -1 if not found, returns nil
-			^bufs[this.indexOf(name) ? -1]
+			^bufs[this.indexOf(index) ? -1]
 		});
 	}
 	
