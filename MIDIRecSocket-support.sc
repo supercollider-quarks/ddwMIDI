@@ -501,6 +501,7 @@ MIDIBufManager {
 					newBuf.name = bufs[value].name;	// updating old one, keep name
 				});
 			});
+			this.changed(\finishedMIDIRecord, newBuf);
 		} {		// must do this before throwing error
 			recorder = nil;	// must garbage to be ready for next record call
 			view.notNil.if({ view.refresh });
