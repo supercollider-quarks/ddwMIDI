@@ -7,27 +7,25 @@
 <meta name="Generator" content="Cocoa HTML Writer">
 <meta name="CocoaVersion" content="824.44">
 <style type="text/css">
-p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Helvetica; color: #000000}
-p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #000000; min-height: 14.0px}
-p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #000000}
-p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Helvetica; color: #000000}
-p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 9.0px Monaco; color: #000000}
-span.s1 {text-decoration: underline}
-span.s2 {color: #000000}
-span.s3 {text-decoration: underline ; color: #000000}
-span.s4 {color: #0000bf}
+p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Helvetica}
+p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Helvetica}
+p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 9.0px Monaco}
+span.s1 {color: #0000ff}
+span.s2 {color: #001ab2}
 </style>
 </head>
 <body>
 <p class="p1"><b>MIDIBufManager</b></p>
 <p class="p2"><br></p>
-<p class="p3">Storage for as many <b>[</b><b><span class="s1">MIDIRecBuf</span></b><b>]</b> objects (<span class="s2">MIDI record buffers) </span>as needed. Also handles the starting and stopping of MIDI note recording, and presents a GUI for selection of buffers and triggering recording.</p>
+<p class="p3">Storage for as many <a href="MIDIRecBuf.html"><span class="s1">MIDIRecBuf</span></a> objects (MIDI record buffers) as needed. Also handles the starting and stopping of MIDI note recording, and presents a GUI for selection of buffers and triggering recording.</p>
 <p class="p2"><br></p>
 <p class="p3"><b>*new(clock, chan, ccnum)</b></p>
 <p class="p2"><br></p>
 <p class="p3"><b>clock:</b> The clock to use for measuring time while recording notes.</p>
-<p class="p3"><b>chan:</b> The MIDI channel to listen for notes. See <b>[</b><b><span class="s1">BasicMIDISocket</span></b><b>]</b> for a description of how to identify the MIDI channel.</p>
-<p class="p3"><b>ccnum:</b> A MIDI continuous controller may be used to select buffers. This is its controller number, or <b>[</b><b><span class="s1">CControl</span></b><b>]</b> object.</p>
+<p class="p3"><b>chan:</b> The MIDI channel to listen for notes. See <a href="BasicMIDISocket.html"><span class="s1">BasicMIDISocket</span></a> for a description of how to identify the MIDI channel.</p>
+<p class="p3"><b>ccnum:</b> A MIDI continuous controller may be used to select buffers. This is its controller number, or <a href="CControl.html"><span class="s1">CControl</span></a> object.</p>
 <p class="p2"><br></p>
 <p class="p3"><b>free</b></p>
 <p class="p2"><br></p>
@@ -66,7 +64,7 @@ span.s4 {color: #0000bf}
 <p class="p2"><br></p>
 <p class="p3"><b>initRecord(properties)</b></p>
 <p class="p2"><br></p>
-<p class="p3">Begin recording. Buffer properties may be set; see the <span class="s2"><b>[</b></span><span class="s3"><b>MIDIRecBuf</b></span><span class="s2"><b>] </b></span>help file for a description of MIDI buffer properties.</p>
+<p class="p3">Begin recording. Buffer properties may be set; see the <a href="MIDIRecBuf.html"><span class="s1">MIDIRecBuf</span></a><b> </b>help file for a description of MIDI buffer properties.</p>
 <p class="p2"><br></p>
 <p class="p3"><b>stopRecord</b></p>
 <p class="p2"><br></p>
@@ -74,6 +72,6 @@ span.s4 {color: #0000bf}
 <p class="p2"><br></p>
 <p class="p3">Additional processing is performed by the postRecFunc function, which belongs to the buffer manager. If you want all buffers to be quantized in a specific way, or parsed for grace notes, write the operation into this function. The function will apply to all buffers recorded in this buffer manager.</p>
 <p class="p2"><br></p>
-<p class="p5">myMBM.postRecFunc = { <span class="s4">|buf|</span> buf.quantize(0.25).parse };</p>
+<p class="p5">myMBM.postRecFunc = { <span class="s2">|buf|</span> buf.quantize(0.25).parse };</p>
 </body>
 </html>
