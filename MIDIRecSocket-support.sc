@@ -97,10 +97,9 @@ MIDIRecBuf {
 						// this is the method to get the value from the SequenceNote
 						// SequenceNote supports only freq here
 		var result;
-//		(key == \gate).if({ key = \args });	// actually this won't work
 		result = this.class.new(name, nil, properties);  // keep old name
 		notes.do({ arg item;
-			result.includes(item/*, key*/).not.if({ result.add(item) });
+			result.includes(item).not.if({ result.add(item) });
 		});
 		^result
 	}
@@ -177,11 +176,6 @@ MIDIRecBuf {
 	gates { ^this.getArray(\gate) }
 	args { ^this.getArray(\args) }
 
-		// deprecated	
-//	translate { arg method = \simple;
-//		^MIDISeqTranslator.translate(method, this);
-//	}
-	
 	hasQuantizeProperties {
 		^(properties.size > 0 and: { properties[\factor].notNil })
 	}
@@ -203,10 +197,8 @@ MIDIRecBuf {
 				j = j - 1;
 			});
 			onset = onset + newnote.dur;
-//[note.length, newnote.dur, note.dur, note.length * newnote.dur / note.dur].postln;
 		});
 		(beatsPerBar.notNil and: { beatsPerBar > 0 }).if({
-//"".postln; [lastOnset, b.collect({ |n| n.dur }).sum - b.last.dur, beatsPerBar, beatsPerBar - ((lastOnset - b.last.dur) % beatsPerBar)].postln;
 				// fill out to end of bar if bar length specified
 			b.last.dur_(beatsPerBar - ((onset - b.last.dur) % beatsPerBar));
 		});
@@ -229,8 +221,6 @@ MIDIRecBuf {
 		durs = this.durs.select({ |item| item > error }).sort
 				// clump durs into note values -- b-a is always >= 0 b/c array is sorted
 			.separate({ |a, b| (b-a) > error });
-
-//durs.do({ |dclump| [dclump.mean, dclump].asCompileString.postln });
 
 			// base, by end, should be gcd of averages of all subarrays
 			// if no gcd is found, base remains the average of lowest note value
@@ -264,7 +254,6 @@ MIDIRecBuf {
 					i = i + 1;
 				});		// end while
 			});		// end base.isNil.if
-//base.postln;
 		});		// end durs.do
 		
 		(base < ((factor ? 0.25) / 2)).if({ ^nil }, { ^base });	// quantization failed, return nil
@@ -282,13 +271,11 @@ MIDIRecBuf {
 		(base = this.baseRhythmicValue(factor, clock, error)).isNil.if({ ^nil });
 		
 		adjustedBase = base.round(factor);	// round base to nearest quant
-//[base, adjustedBase].postln;
 		buf = this.copy;	// make a new buf
 		durs = this.durs;
 		buf.notes.do({ |note, i|
 				// scale to integer level, round to int, and scale back to adjusted value
 			newdur = (durs[i] / base).round * adjustedBase;
-//[durs[i], newdur].postln;
 			(newdur > 0).if({
 				note.length_(note.length * newdur / durs[i]);  // keep articulation as is
 			}, {
@@ -298,12 +285,6 @@ MIDIRecBuf {
 		});
 		
 		^buf
-
-			// MIDIRecBuf-parse supersedes this -- maybe reevaluate later
-//		^TranslatorDef.[\consolidateChords].value(buf)
-//			.name_(buf.name ++ ":q" ++ factor.round(0.001))  // identify as quantized
-//			.properties_(properties)
-//			.absoluteOnsets_(false)
 	}
 	
 		// parse into more complex note types.
@@ -522,10 +503,8 @@ MIDIBufManager {
 		// MTGui is defined in chucklib - technically a dependency
 		// but this method should never be invoked except by dragging into a chucklib object
 	draggedIntoMTGui { |gui, index|
-		var	mt/*, bp*/;
+		var	mt;
 		mt = gui.model;
-//		bp = mt.v[mt.minNote + index].bp;
-			// uses default key for chuck
 		this.current => mt.v[index].bp;
 	}
 }

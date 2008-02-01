@@ -326,7 +326,6 @@ MIDIChannel {
 	
 	searchControl { arg dest;
 		var cc, temp;
-//"MIDIChannel-searchControl".postln; dest.dump;
 		dest.isNil.if({ ^nil });
 		ccResponders.do({ arg r;
 			temp = r.search(dest);

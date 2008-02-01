@@ -23,8 +23,6 @@
 		MIDIPort.init;
 		^MIDIChannelIndex.new(MIDIPort.sources.at(MIDIChannelIndex.defaultPort), this)
 	}
-	
-//	asMIDIChannelNum { ^this }	// Object handles this
 }
 
 + Object {

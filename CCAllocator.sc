@@ -40,7 +40,6 @@ CCAllocator {
 		available = CControl.newArray(controlNums, controlTypes);
 		used = Array.new;
 		reserved = IdentityDictionary.new;
-//[available, used, reserved, reservedTypes].insp;
 		reservedTypes.do({ arg type;
 			i = controlTypes.indexOf(type);
 			i.notNil.if({
@@ -56,9 +55,6 @@ CCAllocator {
 		var ccnum, i;
 		reserved.includesKey(name ? type).if({  // name is reserved
 			ccnum = reserved.at(name ? type);	// get the controller from there
-//			used.includes(ccnum).if({		// if the reserved control is already used,
-//				ccnum = nil;				// clear this so we get a new one
-//			});
 		});
 		(ccnum.isNil && (available.size > 0)).if({	// must have an available control
 			i = 0;					// look for one, but prefer non-reserved
@@ -128,7 +124,6 @@ CControl {
 
 CCRespGroup {
 	var	<responders,		// so a single midi control can be routed to many places
-//		<ccnum,
 		<parent;
 	
 	*new { arg parent ... responders;
@@ -161,15 +156,6 @@ CCRespGroup {
 		^resp
 	}
 	
-//	search { arg name;
-//		var resp;
-//		name.isNil.if({ ^nil });
-//		responders.do({ arg r;
-//			(r.name.asSymbol == name.asSymbol).if({ resp = r });
-//		});
-//		^resp
-//	}
-//	
 	update {
 		responders.copy.do({ arg r;
 			r.notNil.if({
@@ -180,7 +166,6 @@ CCRespGroup {
 			});
 		});
 	}
-				
 	
 	set { arg value, divisor = 127, num;
 		responders.do({ arg r; r.set(value, divisor, num) });

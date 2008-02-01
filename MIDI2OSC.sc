@@ -62,7 +62,7 @@ MIDI2OSCSocket : AbstractMIDISocket {
 
 OSCMidiResponder {
 	var	syncResp, noteOnResp, noteOffResp, controlResp, bendResp, touchResp, freeResp,
-		baseTime;   // , <port, <channel;
+		baseTime;
 	
 	*new { |addr| ^super.new.init(addr) }
 	

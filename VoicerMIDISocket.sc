@@ -66,7 +66,6 @@ VoicerMIDISocket : AbstractMIDISocket {
 					this.removeControl(cc);
 				});
 			});
-//			this.panic;
 				// voicer object is left alone; must be freed separately
 			ccs = nil;	// must be reinited before we can use again
 			noteOnArgsPat = noteOnArgsStream = noteOnArgsEvent = nil;  // garbage collection
@@ -123,7 +122,6 @@ VoicerMIDISocket : AbstractMIDISocket {
 			destination.respondsTo(\proxy).if({ gc }, { gc.proxify }));
 
 		ccs = ccs.add(vcontrol);
-//		gc.displayNameSet;
 	}
 	
 	removeControl { arg control;	// either number or name
@@ -146,7 +144,6 @@ VoicerMIDISocket : AbstractMIDISocket {
 			});
 		});
 		cc1.notNil.if({
-//			destination.unmapGlobal(cc1.destination.name);
 			cc1.free;
 			ccs.remove(cc1);
 		});

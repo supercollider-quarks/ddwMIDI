@@ -41,8 +41,6 @@ VPTrigSocket : AbstractMIDISocket {
 	}
 	
 	removeAt { arg ... ind;
-//		ind.isString.if({	// range: "1-15" -- will support later
-//		});
 		ind = ind.flat;
 		ind.sort({ arg a, b; a > b });	// need reverse order
 		^ind.collect({ arg i;

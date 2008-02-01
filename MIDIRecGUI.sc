@@ -1,12 +1,9 @@
 
 MIDIRecGUI : HJHObjectGui {
 	var	<mainView,		// holds container for all views in this object
-//		seqDrag,		// drag source for sequence names
 		<seqMenu,
 		<nameSet,
 		<statusButton,
-//		<translatorMenu,	// deprecated
-//		<editTranslator,
 		<quant;		// record-quantize control
 
 	guiBody { arg lay;
@@ -14,11 +11,6 @@ MIDIRecGUI : HJHObjectGui {
 		mainView.isNil.if({	// if this gui is already open, don't recreate
 			mainView = FixedWidthFlowView(layout, argBounds ?? { Rect(0, 0, 700, 300) });
 
-//			seqDrag = SCDragSource(mainView, Rect(0, 0, 60, 20))
-//				.silentObject_(model.current)
-//				.align_(\center)
-//				.string_("[[drag me]]");
-//
 			seqMenu = GUI.popUpMenu.new(mainView, Rect(0, 0, 120, 20))
 				.items_(model.menuItems)  //.align(\center);
 				.action_({ arg m;
@@ -46,21 +38,6 @@ MIDIRecGUI : HJHObjectGui {
 					});
 				});
 			
-//			translatorMenu = SCPopUpMenu(mainView, Rect(0, 0, 120, 20))
-//				.items_(Library.at(\bufTrans).keys.asArray.sort);
-//			
-//			editTranslator = ActionButton(mainView, "edit", {
-//				var d;
-//				d = Document("Edit translator parameters",
-//					Library.at(\bufTrans, this.currentTranslator).asEditString)
-//					.syntaxColorize;
-//				d.onClose_({
-//					d.string.interpret;	// this should put a new version in the library
-//					this.refreshMenu;	// so you can create a new xlator by editing an old one
-//									// and changing the name
-//				});
-//			}, minWidth:70);
-
 			// implement quantize later -- actually, apply quantize at translation time
 			model.view = this;		// so it can find me
 			this.refresh(model);
@@ -69,44 +46,26 @@ MIDIRecGUI : HJHObjectGui {
 	}
 	
 	refresh { arg changer;
-//		(changer.class == MIDIBufManager).if({
-//"MIDIRecGUI-refresh: MIDIBufManager (updating value)".postln;
-			model.current.isNil.if({		// pointing to empty space at end?
-				{ // seqDrag.silentObject_(nil); 
-				  seqMenu.value_(model.bufs.size);
-				  nil }.defer;
-			}, {
-				{ // seqDrag.silentObject_(model.current);
-				  seqMenu.value_(model.value);
-				  nil }.defer;
-			});
-//			^this
-//		});
-//		(changer.class == MIDIRecControl).if({
-//"MIDIRecGUI-refresh: MIDIRecControl (updating items)".postln;
-			{ statusButton.value_(model.recorder.notNil.binaryValue); 
-			  seqMenu.items_(model.menuItems);
+		model.current.isNil.if({		// pointing to empty space at end?
+			{ seqMenu.value_(model.bufs.size);
 			  nil }.defer;
-//			^this
-//		});
+		}, {
+			{ seqMenu.value_(model.value);
+			  nil }.defer;
+		});
+		{ statusButton.value_(model.recorder.notNil.binaryValue); 
+		  seqMenu.items_(model.menuItems);
+		  nil }.defer;
 		
 	}
-	
-//	currentTranslator {	// returns symbolic name of current choice in translatorMenu
-//		^translatorMenu.items.wrapAt(translatorMenu.value).asSymbol
-//	}
 	
 	refreshMenu {
 		{
 			seqMenu.items_(model.menuItems);
-//			translatorMenu.items_(Library.at(\bufTrans).keys.asArray.sort);
 		}.defer;
 	}
 	
 	setName {		// give focus to nameSet so user can type name
 		{ nameSet.focus(true); }.defer;
 	}
-
-//	remove {}		// ?????
-	
 }

@@ -13,7 +13,7 @@ VoicerMIDIController : AbstractMIDIControl {
 		{	destination.midiControl = this;
 			destination.displayNameSet;
 			spec = destination.tryPerform(\spec).asSpec;
-		}.try; // { |error| error.reportError }; (for debugging)
+		}.try;
 	}
 	
 		// this is part of the "free" process so I won't use defaultDest here
@@ -44,7 +44,6 @@ VoicerMIDIController : AbstractMIDIControl {
 		}.try;
 		destination = dest ? defaultDest;
 		{	
-//"should be setting destination midiControl here".postln;
 			destination.midiControl = this;
 			destination.displayNameSet;
 			spec = destination.tryPerform(\spec).asSpec;
@@ -89,8 +88,6 @@ MixerMIDIControl : AbstractMIDIControl {
 		destination.setControl(\level, spec.map(value/(divisor?127)), resync:false);
 	}
 	
-//	socket { ^this }
-//	
 	name { ^destination.name }
 	
 }
@@ -99,37 +96,7 @@ MixerMIDIMute : AbstractMIDIControl {
 	set {
 		destination.mute;	// auto toggles between muted and unmuted states
 	}
-//	destValue { ^nil }
 }
-
-//	// use MixerChannelGUI like a proxy
-//MixerGuiMIDIControl : MixerMIDIControl {
-//	init { arg spc;
-//		var buttontry;
-//		spec = spc.asSpec;
-//		ccnum.notNil.if({
-//			buttontry = ccnum.tryPerform(\buttonnum);	// if your controller has buttons like mine
-//			buttontry.notNil.if({
-//				MixerGuiMIDIMute(parent.channel, buttontry, destination);
-//			});
-//			destination.midiControl = this;
-//			^this
-//		});
-//		^nil		// if no controller was available, don't fake it
-//	}
-//
-//	destValue { ^destination.tryPerform(\mixer).tryPerform(\level) }
-//	
-//	set { arg value, divisor;
-//		destination.mixer.level_(spec.map(value/(divisor?127)));
-//	}
-//}
-//
-//MixerGuiMIDIMute : MixerMIDIControl {	
-//	set {
-//		destination.mixer.mute;	// auto toggles between muted and unmuted states
-//	}
-//}
 
 SelectorMIDIControl : AbstractMIDIControl {
 	var <divisor = 2, oldValue = 0, moved = 0;
@@ -162,12 +129,9 @@ SelectorMIDIControl : AbstractMIDIControl {
 		((addToViewValue != 0) /* and: { destination.view.notNil } */).if({  // if we changed, update gui
 			moved = 0;	// start moved fresh
 			{ destination.value = destination.value + addToViewValue }.defer;
-//			{ destination.view.setProperty(\value, destination.value) }.defer;
 		});
 	}
 	
-//	socket { ^this }
-//	
 	name { ^destination.voicer.name }
 	
 }
@@ -207,16 +171,12 @@ VPGButtonControl : VPGMIDIControl {
 MIDIRecControl : AbstractMIDIControl {
 		// activates and deactivates recording
 
-	// init {} ?
-	
 	set {
 		destination.recorder.isNil.if({		// if no recorder, time to start
 			destination.initRecord;
-//			parent.soloSocket(destination);		// notes shouldn't be heard by other sockets
 		}, {
 				// else, reset for next time
 			destination.stopRecord;
-//			parent.enableAllBut(destination);	// restore other sockets
 		});
 		destination.view.tryPerform(\refresh, this);
 	}
@@ -249,7 +209,4 @@ BufManagerMIDIControl : SelectorMIDIControl {
 	}
 	
 	active { ^destination.active }
-
-//	set {}	// superclass handles this
-	
 }

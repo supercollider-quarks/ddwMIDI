@@ -17,9 +17,6 @@ AbstractMIDISocket {
 	}
 
 	free {
-//"\n\nFreeing MIDI socket".debug;
-//this.dump;
-//this.dumpBackTrace;
 		parent.remove(this);
 		this.clear;
 	}
@@ -102,18 +99,9 @@ MIDIRecSocket : AbstractMIDISocket {
 	removeAllResponders { moreResponders = []; }
 	
 	initRecord { arg properties;
-//"MIDIRecSocket-initRecord".postln;
 		buf = MIDIRecBuf("buf" ++ Main.elapsedTime.round, properties: properties ?? { () });
 		unresolvedNotes = Array.new;
 	}
-	
-//	parse_ { arg argParse;
-//		startTime.isNil.if({
-//			parse = argParse ? parse;
-//		}, {
-//			Error("Cannot set parse flag while recording MIDI.").throw;
-//		});
-//	}
 	
 	stopRecord {
 		var timeTemp, noteToStop;
@@ -140,22 +128,18 @@ MIDIRecSocket : AbstractMIDISocket {
 	
 	noteOn { arg num, vel;
 		var timeTemp, new;
-//		buf.isNil.if({	// if rec was started properly by button, this will not be true
-//			parent.disable(this);
-//		}, {
-			timeTemp = clock.elapsedBeats;
-			startTime.isNil.if({ startTime = timeTemp });  // 1st note should be at 0
-				// fill in previous note's delta
-			(buf.notes.size > 0).if({
-				buf.notes.last.dur = timeTemp - lastNoteTime;
-			});
-			unresolvedNotes = unresolvedNotes.add(new = SequenceNote(num,
-					// cannot assign new lastNoteTime until after previous delta is recorded
-				0, lastNoteTime = timeTemp, vel/127));
-			buf.add(new);
-				// use the SequenceNote object, not the raw MIDI data
-			moreResponders.do({ |resp| resp.noteOn(new) });
-//		});
+		timeTemp = clock.elapsedBeats;
+		startTime.isNil.if({ startTime = timeTemp });  // 1st note should be at 0
+			// fill in previous note's delta
+		(buf.notes.size > 0).if({
+			buf.notes.last.dur = timeTemp - lastNoteTime;
+		});
+		unresolvedNotes = unresolvedNotes.add(new = SequenceNote(num,
+				// cannot assign new lastNoteTime until after previous delta is recorded
+			0, lastNoteTime = timeTemp, vel/127));
+		buf.add(new);
+			// use the SequenceNote object, not the raw MIDI data
+		moreResponders.do({ |resp| resp.noteOn(new) });
 	}
 	
 	noteOff { arg num, vel;
@@ -170,11 +154,7 @@ MIDIRecSocket : AbstractMIDISocket {
 			note.length = clock.elapsedBeats - note.length;
 			moreResponders.do({ |resp| resp.noteOff(note) });
 		});
-//		parse.if({
-//			nil
-//		});
 	}
-	
 }
 
 MIDIThruSocket : AbstractMIDISocket {
