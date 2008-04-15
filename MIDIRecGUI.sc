@@ -9,7 +9,7 @@ MIDIRecGUI : HJHObjectGui {
 	guiBody { arg lay;
 		layout = lay;
 		mainView.isNil.if({	// if this gui is already open, don't recreate
-			mainView = FixedWidthFlowView(layout, argBounds ?? { Rect(0, 0, 700, 300) });
+			mainView = FlowView(layout, argBounds ?? { Rect(0, 0, 700, 300) });
 
 			seqMenu = GUI.popUpMenu.new(mainView, Rect(0, 0, 120, 20))
 				.items_(model.menuItems)  //.align(\center);
