@@ -215,6 +215,8 @@ MIDIChannelIndex {
 	asString {
 		var src;
 			// search for MIDIEndPoint with this uid
+			// my 'port' variable might not be a macosx uid
+			// so it isn't enough to do MIDIPort.ports[port]
 		src = MIDIPort.ports.values.collect({ arg p; p.src })
 			.select({ arg src; src.uid == port }).at(0);
 
