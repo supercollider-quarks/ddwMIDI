@@ -498,7 +498,7 @@ MIDIBufManager {
 	
 	asMIDIRecBuf { ^this.current }
 	
-	asString { ^"MidiBufManager : " ++ name }
+	asString { ^"MIDIBufManager : " ++ name }
 
 		// MTGui is defined in chucklib - technically a dependency
 		// but this method should never be invoked except by dragging into a chucklib object
