@@ -73,33 +73,39 @@ MIDIPort {
 				MIDIClient.init(numPorts, numPorts);	// open the ports
 			});
 
+			numPorts = max(numPorts, MIDIClient.sources.size);
+
 				// not enough inports specified, fill with consecutive integers
 				// if 3 sources and you supply [1], result is [1, 0, 2]
 			sourceInports = sourceInports ? Array.new;
-			(sourceInports.size < MIDIClient.sources.size).if({
+			(sourceInports.size < numPorts).if({
 				sourceInports = sourceInports ++
-					((0..(MIDIClient.sources.size-1)).reject({ |x| sourceInports.includes(x) }));
+					((0..(numPorts-1)).reject({ |x| sourceInports.includes(x) }));
 			});
 
-			MIDIClient.sources.size.do({ arg i;
-				srctemp = MIDIClient.sources[sourceInports[i]];
+			sources = Array.new(numPorts);
+			sourceInports.do({ arg sourceIndex, i;
+				srctemp = MIDIClient.sources[sourceIndex]
+					?? { MIDIEndPoint.new("fake", "midiport", 1000000000.rand) };
+				sources.add(srctemp);
 					// save ports with uid as pointer
 				ports.put(srctemp.uid, MIDIPort.new(srctemp));
-				MIDIIn.connect(i, srctemp);  // connect it
+				if(srctemp.device != "fake") {
+					MIDIIn.connect(i, srctemp);  // connect it
+				};
 			});
-			(ports.size == 0).if({	// if no ports are available, put a fake one in
-								// so that calls to MIDI classes won't crash
-				sources = Array.new;
-				numPorts.do({
-						// generate a bogus uid
-					randsrc = MIDIEndPoint.new("fake", "midiport", 1000000000.rand);
-					ports.put(randsrc.uid, MIDIPort.new(randsrc));
-					sources = sources.add(randsrc);
-				});
-			}, {
-				sources = MIDIClient.sources[sourceInports];
-			});
-			numPorts = ports.size;
+//			(ports.size < numPorts).if({	// if no ports are available, put a fake one in
+//								// so that calls to MIDI classes won't crash
+//				sources ?? { sources = Array.new };
+//				(numPorts - ports.size).do({
+//						// generate a bogus uid
+//					randsrc = MIDIEndPoint.new("fake", "midiport", 1000000000.rand);
+//					ports.put(randsrc.uid, MIDIPort.new(randsrc));
+//					sources = sources.add(randsrc);
+//				});
+//			}, {
+//				sources = MIDIClient.sources[sourceInports];
+//			});
 			
 			NoteOnResponder({ arg src, chan, note, vel;
 				ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).noteOn(note, vel); });
