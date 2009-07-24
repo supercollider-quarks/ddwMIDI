@@ -381,7 +381,7 @@ MIDIChannel {
 	}
 	
 	noteOff { arg note, vel;
-		sockets.do({ arg v; v.noteOff(note) });
+		sockets.do({ arg v; v.noteOff(note, vel) });
 	}
 	
 	control { arg num, value;
