@@ -87,7 +87,7 @@ MIDIPort {
 			sourceInports.do({ arg sourceIndex, i;
 				var	port = this.portForSource(MIDIClient.sources[sourceIndex].uid);
 				if(port.src.device != "fake") {
-					MIDIIn.connect(i, srctemp);  // connect it
+					MIDIIn.connect(i, port.src);  // connect it
 				};
 			});
 //			(ports.size < numPorts).if({	// if no ports are available, put a fake one in
