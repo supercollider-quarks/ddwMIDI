@@ -85,12 +85,8 @@ MIDIPort {
 
 			sources = Array.new(numPorts);
 			sourceInports.do({ arg sourceIndex, i;
-				srctemp = MIDIClient.sources[sourceIndex]
-					?? { MIDIEndPoint.new("fake", "midiport", 1000000000.rand) };
-				sources.add(srctemp);
-					// save ports with uid as pointer
-				ports.put(srctemp.uid, MIDIPort.new(srctemp));
-				if(srctemp.device != "fake") {
+				var	port = this.portForSource(MIDIClient.sources[sourceIndex].uid);
+				if(port.src.device != "fake") {
 					MIDIIn.connect(i, srctemp);  // connect it
 				};
 			});
@@ -108,24 +104,42 @@ MIDIPort {
 //			});
 			
 			NoteOnResponder({ arg src, chan, note, vel;
+				if(ports[src].isNil) {
+					// true == post warning
+					// warning should not post repeatedly
+					// unless the MIDI subsystem replies with random uids for each message!
+					this.portForSource(src, true);
+				};
 				ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).noteOn(note, vel); });
 				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).noteOn(note, vel); });
 			});
 			NoteOffResponder({ arg src, chan, note, vel;
+				if(ports[src].isNil) {
+					this.portForSource(src, true);
+				};
 				ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).noteOff(note, vel); });
 				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).noteOff(note, vel); });
 			});
 			CCResponder({ arg src, chan, num, value;
+				if(ports[src].isNil) {
+					this.portForSource(src, true);
+				};
 				ports.at(src).at(chan).notNil.if({ 
 					ports.at(src).at(chan).control(num, value);
 				});
 				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).control(num, value); });
 			});
 			BendResponder({ arg src, chan, bend;
+				if(ports[src].isNil) {
+					this.portForSource(src, true);
+				};
 				ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).bend(bend); });
 				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).bend(bend); });
 			});
 			TouchResponder({ arg src, chan, pressure;
+				if(ports[src].isNil) {
+					this.portForSource(src, true);
+				};
 				ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).touch(pressure); });
 				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).touch(pressure); });
 			});
@@ -203,6 +217,22 @@ MIDIPort {
 			port = sources[port].uid;
 		});
 		^protoCCAllocators[port].deepCopy
+	}
+
+	*portForSource { |uid, warn = false|
+		var	srctemp, port;
+		if(ports[uid].isNil) {
+			srctemp = MIDIClient.sources.detect { |src| src.uid == uid }
+				?? { MIDIEndPoint.new("fake", "midiport", uid ?? { 1000000000.rand }) };
+			sources = sources.add(srctemp);
+			port = MIDIPort.new(srctemp);
+			ports.put(srctemp.uid, port);
+			if(warn ? false) {
+				"Could not locate MIDIPort with uid %. Created a dummy instance at port index %."
+				.format(uid, sources.size - 1).warn;
+			};
+			^port
+		} { ^ports[uid] }
 	}
 }
 
