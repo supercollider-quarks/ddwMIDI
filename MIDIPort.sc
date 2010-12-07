@@ -85,7 +85,7 @@ MIDIPort {
 
 			sources = Array.new(numPorts);
 			sourceInports.do({ arg sourceIndex, i;
-				var	port = this.portForSource(MIDIClient.sources[sourceIndex].uid);
+				var	port = this.portForSource(MIDIClient.sources[sourceIndex].tryPerform(\uid));
 				if(port.src.device != "fake") {
 					MIDIIn.connect(i, port.src);  // connect it
 				};
@@ -227,6 +227,7 @@ MIDIPort {
 			sources = sources.add(srctemp);
 			port = MIDIPort.new(srctemp);
 			ports.put(srctemp.uid, port);
+			numPorts = max(numPorts, ports.size);
 			if(warn ? false) {
 				"Could not locate MIDIPort with uid %. Created a dummy instance at port index %."
 				.format(uid, sources.size - 1).warn;
