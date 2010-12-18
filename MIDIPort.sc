@@ -73,7 +73,7 @@ MIDIPort {
 				MIDIClient.init(numPorts, numPorts);	// open the ports
 			});
 
-			numPorts = max(numPorts, MIDIClient.sources.size);
+			numPorts = max(numPorts, MIDIClient.sources.size + 1);
 
 				// not enough inports specified, fill with consecutive integers
 				// if 3 sources and you supply [1], result is [1, 0, 2]
@@ -85,11 +85,15 @@ MIDIPort {
 
 			sources = Array.new(numPorts);
 			sourceInports.do({ arg sourceIndex, i;
-				var	port = this.portForSource(MIDIClient.sources[sourceIndex].tryPerform(\uid));
+				var	port = this.portForSource(MIDIClient.sources.tryPerform(\at, sourceIndex).tryPerform(\uid));
 				if(port.src.device != "fake") {
 					MIDIIn.connect(i, port.src);  // connect it
 				};
 			});
+			srctemp = MIDIEndPoint("All devices", "All devices", 0x80000001);
+			sources = sources.add(srctemp);
+			ports.put(0x80000001, MIDIPort(srctemp));
+			numPorts = max(numPorts, ports.size);
 //			(ports.size < numPorts).if({	// if no ports are available, put a fake one in
 //								// so that calls to MIDI classes won't crash
 //				sources ?? { sources = Array.new };
@@ -110,38 +114,48 @@ MIDIPort {
 					// unless the MIDI subsystem replies with random uids for each message!
 					this.portForSource(src, true);
 				};
-				ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).noteOn(note, vel); });
-				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).noteOn(note, vel); });
+				[0x80000001, src].do { |src|
+					ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).noteOn(note, vel); });
+					ports.at(src).at(16).notNil.if({ ports.at(src).at(16).noteOn(note, vel); });
+				};
 			});
 			NoteOffResponder({ arg src, chan, note, vel;
 				if(ports[src].isNil) {
 					this.portForSource(src, true);
 				};
-				ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).noteOff(note, vel); });
-				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).noteOff(note, vel); });
+				[0x80000001, src].do { |src|
+					ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).noteOff(note, vel); });
+					ports.at(src).at(16).notNil.if({ ports.at(src).at(16).noteOff(note, vel); });
+				};
 			});
 			CCResponder({ arg src, chan, num, value;
 				if(ports[src].isNil) {
 					this.portForSource(src, true);
 				};
-				ports.at(src).at(chan).notNil.if({ 
-					ports.at(src).at(chan).control(num, value);
-				});
-				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).control(num, value); });
+				[0x80000001, src].do { |src|
+					ports.at(src).at(chan).notNil.if({ 
+						ports.at(src).at(chan).control(num, value);
+					});
+					ports.at(src).at(16).notNil.if({ ports.at(src).at(16).control(num, value); });
+				};
 			});
 			BendResponder({ arg src, chan, bend;
 				if(ports[src].isNil) {
 					this.portForSource(src, true);
 				};
-				ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).bend(bend); });
-				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).bend(bend); });
+				[0x80000001, src].do { |src|
+					ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).bend(bend); });
+					ports.at(src).at(16).notNil.if({ ports.at(src).at(16).bend(bend); });
+				};
 			});
 			TouchResponder({ arg src, chan, pressure;
 				if(ports[src].isNil) {
 					this.portForSource(src, true);
 				};
-				ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).touch(pressure); });
-				ports.at(src).at(16).notNil.if({ ports.at(src).at(16).touch(pressure); });
+				[0x80000001, src].do { |src|
+					ports.at(src).at(chan).notNil.if({ ports.at(src).at(chan).touch(pressure); });
+					ports.at(src).at(16).notNil.if({ ports.at(src).at(16).touch(pressure); });
+				};
 			});
 			initialized = true;
 			onInitAll.value(this);
@@ -222,7 +236,7 @@ MIDIPort {
 	*portForSource { |uid, warn = false|
 		var	srctemp, port;
 		if(ports[uid].isNil) {
-			srctemp = MIDIClient.sources.detect { |src| src.uid == uid }
+			srctemp = MIDIClient.sources.tryPerform(\detect, { |src| src.uid == uid })
 				?? { MIDIEndPoint.new("fake", "midiport", uid ?? { 1000000000.rand }) };
 			sources = sources.add(srctemp);
 			port = MIDIPort.new(srctemp);
@@ -303,7 +317,7 @@ MIDIChannel {
 	
 	init { arg chan, v, cNums, cTypes, rTypes;
 		sockets = v.notNil.if({ Array.with(v) }, { Array.new });  // array for sockets
-		channel = chan.asChannelIndex;
+		channel = (chan ? channel).asChannelIndex;
 			// 128 reserved for \pb, 129 for \touch, 130 for \omni
 		ccResponders = Array.newClear(131);
 		controlNums = cNums ? controlNums;
