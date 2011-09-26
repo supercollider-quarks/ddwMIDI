@@ -70,7 +70,7 @@ MIDIPort {
 			// to whatever function was in MIDIIn before initialization
 		initialized.not.if({
 			MIDIClient.initialized.not.if({
-				MIDIClient.init(numPorts, numPorts);	// open the ports
+				MIDIClient.init;	// open the ports
 			});
 
 			numPorts = max(numPorts, MIDIClient.sources.size + 1);
@@ -94,18 +94,6 @@ MIDIPort {
 			sources = sources.add(srctemp);
 			ports.put(0x80000001, MIDIPort(srctemp));
 			numPorts = max(numPorts, ports.size);
-//			(ports.size < numPorts).if({	// if no ports are available, put a fake one in
-//								// so that calls to MIDI classes won't crash
-//				sources ?? { sources = Array.new };
-//				(numPorts - ports.size).do({
-//						// generate a bogus uid
-//					randsrc = MIDIEndPoint.new("fake", "midiport", 1000000000.rand);
-//					ports.put(randsrc.uid, MIDIPort.new(randsrc));
-//					sources = sources.add(randsrc);
-//				});
-//			}, {
-//				sources = MIDIClient.sources[sourceInports];
-//			});
 			
 			NoteOnResponder({ arg src, chan, note, vel;
 				if(ports[src].isNil) {
@@ -455,7 +443,8 @@ MIDIChannel {
 	enableSocket { arg ... sock;
 		var indices;
 			// get indices in reverse order
-		indices = sock.flat.collectIndicesFromArray(disabledSockets).sort({ arg a, b; a > b });
+		indices = sock.flat.collectIndicesFromArray(disabledSockets.asArray)
+			.sort({ arg a, b; a > b });
 		indices.do({ arg i;
 			sockets = sockets.add(disabledSockets.removeAt(i));
 		});
