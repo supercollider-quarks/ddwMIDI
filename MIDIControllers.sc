@@ -25,7 +25,7 @@ VoicerMIDIController : AbstractMIDIControl {
 	}
 
 	set { arg value, divisor;
-		(destination.notNil and: { destination != defaultDest }).if({
+		(this.active and: { destination.notNil and: { destination != defaultDest } }).if({
 			destination.set(destination.spec.map(value/(divisor?127)), resync:false);
 		});
 	}

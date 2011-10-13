@@ -13,6 +13,8 @@
 			(port.abs < MIDIPort.numPorts).if({
 				port = MIDIPort.sources.at(port).uid
 			})
+		}, {
+			if(port == \all) { port = 0x80000001 };
 		});
 		^MIDIChannelIndex.new(port, this.at(1).asMIDIChannelNum)
 	}
