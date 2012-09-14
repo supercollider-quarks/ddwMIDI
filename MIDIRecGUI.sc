@@ -37,15 +37,18 @@ MIDIRecGUI : HJHObjectGui {
 						model.stopRecord;
 					});
 				});
-			
+
 			// implement quantize later -- actually, apply quantize at translation time
 			model.view = this;		// so it can find me
 			this.refresh(model);
 			if(iMadeMasterLayout) { masterLayout.recursiveResize };
 		});
 	}
-	
+
 	refresh { arg changer;
+		{ statusButton.value_(model.recorder.notNil.binaryValue);
+		  seqMenu.items_(model.menuItems);
+		  nil }.defer;
 		model.current.isNil.if({		// pointing to empty space at end?
 			{ seqMenu.value_(model.bufs.size);
 			  nil }.defer;
@@ -53,18 +56,14 @@ MIDIRecGUI : HJHObjectGui {
 			{ seqMenu.value_(model.value);
 			  nil }.defer;
 		});
-		{ statusButton.value_(model.recorder.notNil.binaryValue); 
-		  seqMenu.items_(model.menuItems);
-		  nil }.defer;
-		
 	}
-	
+
 	refreshMenu {
 		{
 			seqMenu.items_(model.menuItems);
 		}.defer;
 	}
-	
+
 	setName {		// give focus to nameSet so user can type name
 		{ nameSet.focus(true); }.defer;
 	}
