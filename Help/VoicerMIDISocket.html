@@ -69,14 +69,14 @@ span.Apple-tab-span {white-space:pre}
 <p class="p2"><br></p>
 <p class="p3">This number of semitones will be added to the MIDI note number when the note is triggered.<span class="Apple-converted-space"> </span></p>
 <p class="p2"><br></p>
-<p class="p3"><b>addControl(ccnum, name, spec, value = 0)<span class="Apple-converted-space"> </span></b></p>
+<p class="p3"><b>addControl(ccnum, name, value = 0, spec)<span class="Apple-converted-space"> </span></b></p>
 <p class="p2"><br></p>
 <p class="p3">Maps a MIDI controller number to a single argument.</p>
 <p class="p2"><br></p>
 <p class="p3"><b>ccnum:</b> the controller number. Supply <span class="s4">\pb</span> to use the pitch bend wheel. Alternately, leave ccnum nil and the socket will get a control from the MIDIChannel's <a href="CCAllocator.html"><span class="s5">CCAllocator</span></a> (accessed by channel.ccAllocator).</p>
 <p class="p3"><b>name:</b> the name of the synth argument. Should be a symbol (or respond to asSymbol).<span class="Apple-converted-space"> </span></p>
-<p class="p3"><b>spec:</b> a ControlSpec used to map the raw controller data onto a user defined range. The controller data are divided by 127 before being mapped by the ControlSpec, so the input range is an 0..1. Can be given as an Array (to which .asSpec will be applied). For pitch bend, if you supply an Integer or Float, addControl will construct a spec which will give that many semitones bend in either direction: <span class="s6">[num.midiratio.reciprocal, num.midiratio, </span><span class="s7">\exponential</span><span class="s6">, 0, 1].asSpec</span>.</p>
 <p class="p3"><b>value:</b> the desired initial value for this controller.<span class="Apple-converted-space"> </span></p>
+<p class="p3"><b>spec:</b> a ControlSpec used to map the raw controller data onto a user defined range. The controller data are divided by 127 before being mapped by the ControlSpec, so the input range is an 0..1. Can be given as an Array (to which .asSpec will be applied). For pitch bend, if you supply an Integer or Float, addControl will construct a spec which will give that many semitones bend in either direction: <span class="s6">[num.midiratio.reciprocal, num.midiratio, </span><span class="s7">\exponential</span><span class="s6">, 0, 1].asSpec</span>.</p>
 <p class="p2"><br></p>
 <p class="p3">The same controller number can be mapped to many different functions (and even belonging to different voicers or different kinds of objects altogether). If you want to control multiple voicers with one controller, keep in mind that each voicer has to have its own socket; therefore, you'll have to add a control to each socket individually, using the same controller number.</p>
 <p class="p2"><br></p>
