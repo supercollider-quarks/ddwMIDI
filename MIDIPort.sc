@@ -145,6 +145,22 @@ MIDIPort {
 					ports.at(src).at(16).notNil.if({ ports.at(src).at(16).touch(pressure); });
 				};
 			});
+			// 3.5+ can support polytouch
+			if('MIDIFunc'.asClass.notNil) {
+				MIDIFunc.polytouch({ |pressure, notenum, chan, src|
+					if(ports[src].isNil) {
+						this.portForSource(src, true);
+					};
+					[0x80000001, src].do { |src|
+						if(ports.at(src).at(chan).notNil) {
+							ports.at(src).at(chan).polytouch(pressure, notenum);
+						};
+						if(ports.at(src).at(16).notNil) {
+							ports.at(src).at(16).polytouch(pressure, notenum);
+						};
+					};
+				}).fix;  // survive cmd-.
+			};
 			initialized = true;
 			onInitAll.value(this);
 		});
@@ -306,8 +322,8 @@ MIDIChannel {
 	init { arg chan, v, cNums, cTypes, rTypes;
 		sockets = v.notNil.if({ Array.with(v) }, { Array.new });  // array for sockets
 		channel = (chan ? channel).asChannelIndex;
-			// 128 reserved for \pb, 129 for \touch, 130 for \omni
-		ccResponders = Array.newClear(131);
+			// 128 reserved for \pb, 129 for \touch, 130 for \omni, 131 for \polytouch
+		ccResponders = Array.newClear(132);
 		controlNums = cNums ? controlNums;
 		controlTypes = cTypes ? controlTypes;
 		reservedTypes = rTypes ? reservedTypes;
@@ -339,6 +355,7 @@ MIDIChannel {
 			{ \pb } { i = 128 }
 			{ \touch } { i = 129 }
 			{ \omni } { i = 130 }
+			{ \ptouch } { i = 131 }
 			{ i = cc.ccnum.value };
 			
 		ccResponders.at(i).isNil.if({
@@ -437,7 +454,15 @@ MIDIChannel {
 		ccResponders[129].notNil.if({ ccResponders[129].setSync(pr); });
 		ccResponders[130].notNil.if({ ccResponders[130].setSync(pr, 127, \kbprs) });
 	}
-	
+
+	polytouch { arg pr, notenum;
+		// hack: we need something to represent both the notenum and pressure
+		// and it has to respond to '/' (for set/setSync)
+		pr = (notenum: notenum, pr: pr, '/': { |self, denom| self[\pr] / denom });
+		ccResponders[131].notNil.if({ ccResponders[131].set(pr); });
+		ccResponders[130].notNil.if({ ccResponders[130].set(pr, 127, \polyprs) });
+	}
+
 	asChannelIndex { ^channel }
 	
 	enableSocket { arg ... sock;
