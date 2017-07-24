@@ -87,60 +87,38 @@ EXAMPLES::
 
 code::
 MIDIClient.init;
-
 MIDIIn.connect(0, MIDIClient.sources[0]); // or which device holds the clock
-
 
 MIDISyncClock.init(0, 0);	// 0 beats, 0 secs
 
-
 // start sending MIDI clock messages
-
-
 s.boot;
 
-
 t = Task({
-
 	var	synth;
-
 	loop {
-
 		#[60, 62, 64, 65, 67, 65, 64, 62].do({ |note|
-
 			s.makeBundle(0.2, {
-
 				synth = Synth(\default, [freq: note.midicps])
-
 			});
-
 			s.makeBundle(0.4, {
-
 				synth.release;
-
 			});
-
 			0.25.wait;
-
 		});
-
 	}
-
 }).play(MIDISyncClock, quant: 1);
-
 
 SynthDescLib.global.read;
 
-
-t = Pbind(\midinote, Pseq([60, 62, 64, 65, 67, 65, 64, 62], inf),
-
-	\delta, 0.25, \dur, 0.25, \instrument, \default)
-
-	.play(MIDISyncClock, quant:4);
-
+t = Pbind(
+	\midinote, Pseq([60, 62, 64, 65, 67, 65, 64, 62], inf),
+	\delta, 0.25, 
+	\dur, 0.25, 
+	\instrument, \default
+).play(MIDISyncClock, quant:4);
 
 // play with the tempo of the midi clock. sc should adjust accordingly.
-
 
 t.stop;
 ::
