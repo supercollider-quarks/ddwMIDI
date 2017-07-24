@@ -1,0 +1,146 @@
+TITLE:: MIDISyncClock
+summary:: slave SuperCollider to an external MIDI clock
+categories:: External Control>MIDI
+related:: Classes/TempoClock
+
+DESCRIPTION::
+A hack to slave SuperCollider to external MIDI clock messages.
+
+This is a singleton, i.e. it has no instance methods.
+The entire interface happens through class methods.
+
+Limitations:
+
+list::
+## All events are quantized to the nearest tick.
+## Timing may not be reliable in high-pressure situations.
+## Written in sc, not in c++, so it may be CPU hungry.
+## Beats counter is OK. MIDISyncClock.seconds returns elapsed seconds since clock start.
+::
+
+The clock responds to three kinds of MIDI clock messages:
+
+list::
+## code::clock:: Advances the clock by one tick (1/24 beat). The number of ticks per beat is configurable.
+## code::start:: Reset all counters to 0. This ensures that the MIDISyncClock will be synced with the MIDI clock.
+## code::stop:: Clear the queue. Since the clock is not running and times on the queue will be invalid once the clock restarts, the queue should be emptied.
+
+::
+
+
+
+CLASSMETHODS::
+
+
+METHOD:: init
+
+
+Initialize the clock. If MIDIClient is not initialized, this method will do it and connect the sources sequentially to MIDIIn.
+
+
+note::
+MIDIIn.sysrt receives clock messages ONLY from the port assigned to MIDIIn inport 0. If your clock source is not at MIDIClient.sources[0], make sure to connect it manually.
+::
+
+
+METHOD:: schedAbs
+Schedule a task on a specific beat.
+argument:: when
+absolute number of beats at which the task is scheduled to
+argument:: task
+the task
+
+
+
+METHOD:: sched
+argument:: when
+number of beats from now at which the task is scheduled to
+argument:: task
+the task
+argument:: adjustment
+internally used to maintain correct timing of event streams.
+Normally you should not use this argument.
+
+METHOD:: play
+Play a task based on a quantization factor specified as "when."
+
+argument:: task
+the task
+argument:: when
+Either link::Classes/TimeSpec:: objects (from Dewdrop Lib) or a number specifying beats.
+
+METHOD:: clear
+Empty the queue.
+
+
+METHOD:: tempo, beatDur
+Returns an estimation of the tempo, respectively duration of one beat.
+
+note::
+There is some jitter in receiving MIDI messages; therefore these numbers are not bound to be exact.
+::
+
+
+PRIVATE:: ticksPerBeat, beats, ticks, beats2secs, elapsedBeats, beatDur, startTime, dumpQueue, clear, tick, seconds, queue, initClass, secs2beats
+
+EXAMPLES::
+
+code::
+MIDIClient.init;
+
+MIDIIn.connect(0, MIDIClient.sources[0]); // or which device holds the clock
+
+
+MIDISyncClock.init(0, 0);	// 0 beats, 0 secs
+
+
+// start sending MIDI clock messages
+
+
+s.boot;
+
+
+t = Task({
+
+	var	synth;
+
+	loop {
+
+		#[60, 62, 64, 65, 67, 65, 64, 62].do({ |note|
+
+			s.makeBundle(0.2, {
+
+				synth = Synth(\default, [freq: note.midicps])
+
+			});
+
+			s.makeBundle(0.4, {
+
+				synth.release;
+
+			});
+
+			0.25.wait;
+
+		});
+
+	}
+
+}).play(MIDISyncClock, quant: 1);
+
+
+SynthDescLib.global.read;
+
+
+t = Pbind(\midinote, Pseq([60, 62, 64, 65, 67, 65, 64, 62], inf),
+
+	\delta, 0.25, \dur, 0.25, \instrument, \default)
+
+	.play(MIDISyncClock, quant:4);
+
+
+// play with the tempo of the midi clock. sc should adjust accordingly.
+
+
+t.stop;
+::
